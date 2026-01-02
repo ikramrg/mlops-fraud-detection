@@ -1,0 +1,40 @@
+stages:
+  train:
+    cmd: python -m src.models.train_model
+    deps:
+      - src/models/train_model.py
+      - data/raw.csv
+      - params.yaml
+    params:
+      - data
+      - features
+      - model
+    outs:
+      - data/processed_train.csv
+      - data/processed_test.csv
+      - data/y_train.csv
+      - data/y_test.csv
+      - models/xgb_fraud.pkl
+    metrics:
+      - mlruns:
+          cache: false
+
+  monitoring:
+    cmd: python -m src.monitoring.drift_report
+    deps:
+      - data/processed_train.csv
+      - data/processed_test.csv
+      - models/xgb_fraud.pkl
+    outs:
+      - reports/drift_report.html
+
+  analysis:
+    cmd: python -m src.analysis.visualize
+    deps:
+      - data/processed_test.csv
+      - data/y_test.csv
+      - models/xgb_fraud.pkl
+    outs:
+      - reports/roc_curve.png
+      - reports/confusion_matrix.png
+      - reports/proba_distribution.png

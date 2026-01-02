@@ -1,0 +1,15 @@
+data:
+  raw_data: data/raw.csv
+  train_data: data/processed_train.csv
+  test_data: data/processed_test.csv
+features:
+  test_size: 0.2
+  random_state: 42
+model:
+  name: xgboost
+  n_estimators: 300
+  max_depth: 6
+  learning_rate: 0.1
+  scale_pos_weight: 100
+api:
+  port: 8000
