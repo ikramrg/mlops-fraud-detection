@@ -16,12 +16,15 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'  # Cache les dépendances → ultra rapide
 
     - name: Install dependencies
-      run: pip install -r requirements.txt pytest
+      run: |
+        pip install -r requirements.txt
+        pip install pytest  # Si pas dans requirements
 
     - name: Run tests
-      run: pytest tests/
+      run: pytest tests/ -v
 
     - name: Build Docker image
       run: docker build -t fraud-api .
