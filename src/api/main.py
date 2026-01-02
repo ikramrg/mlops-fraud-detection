@@ -8,21 +8,24 @@ import os
 # Chemin du modèle
 MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "models" / "xgb_fraud.pkl"
 
-# Chargement conditionnel : si modèle absent (ex: en CI), on crée un mock simple
+# Chargement conditionnel : 
 if MODEL_PATH.exists():
     model = joblib.load(MODEL_PATH)
     print(f"Modèle réel chargé depuis : {MODEL_PATH}")
 else:
     print("Modèle non trouvé → utilisation d'un modèle mock pour les tests")
     import numpy as np
-    from xgboost import XGBClassifier
     
-    # Modèle mock qui prédit toujours "légitime" avec proba 0.0
-    model = XGBClassifier()
-    model.classes_ = np.array([0, 1])
-    def mock_predict_proba(X):
-        return np.zeros((len(X), 2))  # proba fraude = 0.0
-    model.predict_proba = mock_predict_proba
+    class MockModel:
+        def predict_proba(self, X):
+            # Retourne toujours proba fraude = 0.0 pour les tests
+            return np.zeros((len(X), 2))  # [[1.0, 0.0], ...] → classe 0 = légitime
+        
+        @property
+        def classes_(self):
+            return np.array([0, 1])
+    
+    model = MockModel()
 
 app = FastAPI(
     title="Détection de Fraude Bancaire - MLOps 2025 🕵️‍♂️",
